@@ -1,5 +1,6 @@
 package com.thinmoo.cloud.mqtt;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
@@ -12,6 +13,7 @@ import org.springframework.stereotype.Component;
 @Component
 @Configuration
 @ConfigurationProperties(MqttConfiguration.PREFIX)
+@Slf4j
 public class MqttConfiguration {
 
     @Autowired
@@ -90,6 +92,7 @@ public class MqttConfiguration {
     public MqttPushClient getMqttPushClient() {
         //连接至mqtt服务器，获取mqtt连接
         mqttPushClient.connect(host, clientId, userName, password, timeout, keepAlive);
+        log.info("连接至mqtt服务器，获取mqtt连接");
         //一连接mqtt,就订阅默认需要订阅的主题（如test_queue）
         new MqttSubClient(mqttPushClient);
         return mqttPushClient;

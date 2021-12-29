@@ -1,5 +1,9 @@
 package com.thinmoo.cloud.mqtt;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONException;
+import com.alibaba.fastjson.JSONObject;
+import lombok.Value;
 import lombok.extern.slf4j.Slf4j;
 import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
 import org.eclipse.paho.client.mqttv3.MqttCallback;
@@ -10,6 +14,7 @@ import org.springframework.stereotype.Component;
 @Slf4j
 @Component
 public class PushCallback implements MqttCallback {
+
     @Autowired
     private MqttConfiguration mqttConfiguration;
 
@@ -31,7 +36,7 @@ public class PushCallback implements MqttCallback {
      */
     @Override
     public void deliveryComplete(IMqttDeliveryToken token) {
-
+        log.info("发送消息，消息到达后处理方法={}",token);
     }
 
     /**
@@ -45,6 +50,19 @@ public class PushCallback implements MqttCallback {
         log.info("接收消息主题 : " + topic);
         log.info("接收消息Qos : " + message.getQos());
         log.info("接收消息内容 : " + new String(message.getPayload()));
+
+        String msg = new String(message.getPayload());
+        try {
+            JSONObject jsonObject = JSON.parseObject(msg);
+            String clientId = String.valueOf(jsonObject.get("clientid"));
+            if (topic.endsWith("disconnected")) {
+                log.info("客户端已掉线：{}",clientId);
+            } else {
+                log.info("客户端已上线：{}",clientId);
+            }
+        } catch (JSONException e) {
+            log.error("JSON Format Parsing Exception : {}", msg);
+        }
 
     }
 
