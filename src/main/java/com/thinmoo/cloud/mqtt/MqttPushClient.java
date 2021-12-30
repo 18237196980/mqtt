@@ -6,15 +6,19 @@ import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.util.UUID;
+
+/**
+ * 发送message,获取连接
+ */
 @Slf4j
 @Component
-public class MqttPushClient{
+public class MqttPushClient {
 
     @Autowired
     private PushCallback pushCallback;
 
     private static MqttClient client;
-
 
     public static void setClient(MqttClient client) {
         MqttPushClient.client = client;
@@ -41,7 +45,7 @@ public class MqttPushClient{
                 //client.connect(options);
                 IMqttToken iMqttToken = client.connectWithResult(options);
                 boolean complete = iMqttToken.isComplete();
-                log.info("MQTT连接"+(complete?"成功":"失败"));
+                log.info("MQTT连接" + (complete ? "成功" : "失败"));
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -54,7 +58,7 @@ public class MqttPushClient{
     /**
      * 发布，默认qos为0，非持久化
      *
-     * @param topic 主题名
+     * @param topic       主题名
      * @param pushMessage 消息
      */
     public void publish(String topic, String pushMessage) {
@@ -71,17 +75,20 @@ public class MqttPushClient{
      */
     public void publish(int qos, boolean retained, String topic, String pushMessage) {
         MqttMessage message = new MqttMessage();
+        message.setId(56);
         message.setQos(qos);
         message.setRetained(retained);
         message.setPayload(pushMessage.getBytes());
-        MqttTopic mTopic = MqttPushClient.getClient().getTopic(topic);
+        MqttClient mqttClient = MqttPushClient.getClient();
+        MqttTopic mTopic = mqttClient.getTopic(topic);
         if (null == mTopic) {
-            log.error("主题不存在:{}",mTopic);
+            log.info("主题不存在:{}", mTopic);
         }
         try {
-            mTopic.publish(message);
+            mqttClient.publish(topic, message);
+            // mTopic.publish(message);
         } catch (Exception e) {
-            log.error("mqtt发送消息异常:",e);
+            log.info("mqtt发送消息异常:", e);
         }
     }
 

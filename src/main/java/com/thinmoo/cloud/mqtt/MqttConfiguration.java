@@ -19,7 +19,7 @@ public class MqttConfiguration {
     @Autowired
     private MqttPushClient mqttPushClient;
     //指定配置文件application-local.properties中的属性名前缀
-    public static final String PREFIX = "ximo.mqtt";
+    public static final String PREFIX = "my.mqtt";
     private String host;
     private String clientId;
     private String userName;
@@ -28,12 +28,12 @@ public class MqttConfiguration {
     private int timeout;
     private int keepAlive;
 
-    public String getClientid() {
+    public String getClientId() {
         return clientId;
     }
 
-    public void setClientid(String clientid) {
-        this.clientId = clientid;
+    public void setClientId(String clientId) {
+        this.clientId = clientId;
     }
 
     public String getUsername() {
@@ -93,7 +93,7 @@ public class MqttConfiguration {
         //连接至mqtt服务器，获取mqtt连接
         mqttPushClient.connect(host, clientId, userName, password, timeout, keepAlive);
         log.info("连接至mqtt服务器，获取mqtt连接");
-        //一连接mqtt,就订阅默认需要订阅的主题（如test_queue）
+        //一连接mqtt,就订阅默认需要订阅的主题
         new MqttSubClient(mqttPushClient);
         return mqttPushClient;
     }
